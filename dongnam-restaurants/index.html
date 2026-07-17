@@ -5,149 +5,218 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>청주 동남지구 맛집 추천 10곳</title>
 <style>
-  :root { color-scheme: light dark; }
+  :root {
+    color-scheme: light dark;
+    --naver-green: #03c75a;
+    --naver-green-dark: #02b350;
+    --bg: #f3f5f2;
+    --card-bg: #ffffff;
+    --text: #222222;
+    --text-sub: #666666;
+    --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181a;
+      --card-bg: #212426;
+      --text: #f0f0f0;
+      --text-sub: #9a9a9a;
+      --border: #33373a;
+    }
+  }
+  * { box-sizing: border-box; }
   body {
     margin: 0;
     min-height: 100vh;
-    font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
-    background: #f5f5f7;
-    color: #1d1d1f;
-    padding: 2rem 1rem 4rem;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
   }
-  @media (prefers-color-scheme: dark) {
-    body { background: #1d1d1f; color: #f5f5f7; }
-    .card { background: #2c2c2e !important; }
-    .note { background: #3a2e12 !important; color: #ffd479 !important; }
-    a { color: #6cb4ff !important; }
+  header.topbar {
+    background: var(--naver-green);
+    padding: 1.1rem 1rem;
   }
-  .wrap { max-width: 720px; margin: 0 auto; }
-  h1 {
-    font-size: clamp(1.6rem, 5vw, 2.4rem);
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-  .subtitle {
-    text-align: center;
-    opacity: 0.7;
-    margin-bottom: 1.5rem;
-  }
-  .note {
-    background: #fff4e0;
-    color: #7a4b00;
-    border-radius: 12px;
-    padding: 0.9rem 1.1rem;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-  }
-  .card {
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    padding: 1rem 1.2rem;
-    margin-bottom: 0.8rem;
+  header.topbar .inner {
+    max-width: 720px;
+    margin: 0 auto;
     display: flex;
-    gap: 1rem;
-    align-items: baseline;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .logo-mark {
+    background: #ffffff;
+    color: var(--naver-green);
+    font-weight: 900;
+    font-size: 1.15rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  header.topbar h1 {
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .searchbar {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-top: -0.9rem;
+  }
+  .searchbar .box {
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    padding: 0.75rem 1.1rem;
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .searchbar .box svg { flex-shrink: 0; }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1.6rem 1rem 4rem; }
+
+  .subtitle {
+    color: var(--text-sub);
+    font-size: 0.88rem;
+    margin: 0 0 1.1rem;
+  }
+
+  .note {
+    background: rgba(3,199,90,0.09);
+    border: 1px solid rgba(3,199,90,0.35);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    font-size: 0.83rem;
+    color: var(--text-sub);
+    line-height: 1.55;
+    margin-bottom: 1.4rem;
+  }
+  .note a { color: var(--naver-green-dark); font-weight: 600; text-decoration: none; }
+  .note a:hover { text-decoration: underline; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
   }
   .rank {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--naver-green-dark);
+    min-width: 1.6rem;
+    text-align: center;
+  }
+  .info { flex: 1; min-width: 0; }
+  .name {
     font-weight: 700;
-    font-size: 1.2rem;
-    min-width: 1.8rem;
-    opacity: 0.5;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .info { flex: 1; }
-  .name { font-weight: 600; font-size: 1.05rem; }
-  .meta {
-    font-size: 0.85rem;
-    opacity: 0.65;
-    margin-top: 0.2rem;
+  .meta { font-size: 0.82rem; color: var(--text-sub); }
+  .meta .dot { margin: 0 0.35rem; opacity: 0.6; }
+
+  .map-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--naver-green);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: background 0.15s ease;
   }
-  a { color: #0066cc; text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  .map-btn:hover { background: var(--naver-green-dark); }
+  .map-btn svg { flex-shrink: 0; }
+
+  footer {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-sub);
+    padding-bottom: 2rem;
+  }
 </style>
 </head>
 <body>
+  <header class="topbar">
+    <div class="inner">
+      <div class="logo-mark">N</div>
+      <h1>청주 동남지구 맛집 추천 10곳</h1>
+    </div>
+  </header>
+  <div class="searchbar">
+    <div class="box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      청주 동남지구 맛집
+    </div>
+  </div>
+
   <div class="wrap">
-    <h1>청주 동남지구 맛집 추천 10곳</h1>
-    <p class="subtitle">Best 10 Restaurants in Dongnam-jigu, Cheongju</p>
+    <p class="subtitle">Best 10 Restaurants in Dongnam-jigu, Cheongju · 지도 아이콘을 누르면 네이버 지도에서 바로 볼 수 있어요</p>
 
     <div class="note">
-      ⚠️ 네이버 지도 별점 데이터는 자동으로 가져올 수 없어(접근 차단), 아래 목록은 <strong>블로그 추천 순위(별점순 아님)</strong>를 기준으로 작성했습니다.
+      ⚠️ 네이버 지도의 실제 별점 데이터는 자동 수집이 차단되어 가져올 수 없었습니다. 아래 목록은 <strong>블로그 추천 순위(별점순 아님)</strong>를 기준으로 정리했습니다.
       출처: <a href="https://restaurant-place.bujastory.co.kr/entry/%EB%8F%99%EB%82%A8%EC%A7%80%EA%B5%AC-%EB%A7%9B%EC%A7%91-%EC%B6%94%EC%B2%9C-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EB%A6%AC%EB%B7%B0-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10" target="_blank" rel="noopener">bujastory 블로그</a>
     </div>
 
-    <div class="card">
-      <div class="rank">1</div>
-      <div class="info">
-        <div class="name">수제햄 고래부대찌개 청주동남지구점</div>
-        <div class="meta">부대찌개 · 중고개로141번길 10-6</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">2</div>
-      <div class="info">
-        <div class="name">삼사월 청주동남지구 본점</div>
-        <div class="meta">한우 · 중고개로125번길 11 2층 202호</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">3</div>
-      <div class="info">
-        <div class="name">요쿠야마치 동남지구점</div>
-        <div class="meta">일식(텐동/튀김) · 동남로 79 1층</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">4</div>
-      <div class="info">
-        <div class="name">담가화로구이 청주동남방서점</div>
-        <div class="meta">화로구이 · 월평로 258 1층 101,102,103호</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">5</div>
-      <div class="info">
-        <div class="name">강금옥쭈꾸미 청주동남점</div>
-        <div class="meta">쭈꾸미 · 중고개로141번길 13-20 허브프라자 104,105호</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">6</div>
-      <div class="info">
-        <div class="name">뽀르따멜로</div>
-        <div class="meta">이탈리안(파스타/스테이크) · 중고개로125번길 40-14 1층</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">7</div>
-      <div class="info">
-        <div class="name">베이커리카페 공간</div>
-        <div class="meta">베이커리/카페 · 목련로 106-22 공간조경 1~2층</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">8</div>
-      <div class="info">
-        <div class="name">남다른대구막창 청주방서점</div>
-        <div class="meta">막창 · 단재로 340-5 1층 103호</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">9</div>
-      <div class="info">
-        <div class="name">담소 동남지구 본점</div>
-        <div class="meta">한우/육회 · 중고개로141번길 14-1 1층</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="rank">10</div>
-      <div class="info">
-        <div class="name">호이안식당 청주본점</div>
-        <div class="meta">베트남음식 · 중고개로141번길 33 1층</div>
-      </div>
-    </div>
+    <div id="list"></div>
   </div>
+
+  <footer>지도 링크는 네이버 지도 검색 결과로 연결됩니다.</footer>
+
+<script>
+const restaurants = [
+  { name: "수제햄 고래부대찌개 청주동남지구점", cat: "부대찌개", addr: "중고개로141번길 10-6" },
+  { name: "삼사월 청주동남지구 본점", cat: "한우", addr: "중고개로125번길 11 2층 202호" },
+  { name: "요쿠야마치 동남지구점", cat: "일식(텐동/튀김)", addr: "동남로 79 1층" },
+  { name: "담가화로구이 청주동남방서점", cat: "화로구이", addr: "월평로 258 1층 101,102,103호" },
+  { name: "강금옥쭈꾸미 청주동남점", cat: "쭈꾸미", addr: "중고개로141번길 13-20 허브프라자 104,105호" },
+  { name: "뽀르따멜로", cat: "이탈리안(파스타/스테이크)", addr: "중고개로125번길 40-14 1층" },
+  { name: "베이커리카페 공간", cat: "베이커리/카페", addr: "목련로 106-22 공간조경 1~2층" },
+  { name: "남다른대구막창 청주방서점", cat: "막창", addr: "단재로 340-5 1층 103호" },
+  { name: "담소 동남지구 본점", cat: "한우/육회", addr: "중고개로141번길 14-1 1층" },
+  { name: "호이안식당 청주본점", cat: "베트남음식", addr: "중고개로141번길 33 1층" },
+];
+
+const listEl = document.getElementById("list");
+restaurants.forEach((r, i) => {
+  const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent("청주 " + r.name);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="rank">${i + 1}</div>
+    <div class="info">
+      <div class="name">${r.name}</div>
+      <div class="meta">${r.cat}<span class="dot">·</span>${r.addr}</div>
+    </div>
+    <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+      지도
+    </a>
+  `;
+  listEl.appendChild(card);
+});
+</script>
 </body>
 </html>
