@@ -110,11 +110,13 @@
     border-radius: 12px;
     padding: 1rem 1.1rem;
     margin-bottom: 0.7rem;
+  }
+  .card.no-score { opacity: 0.72; }
+  .card-row {
     display: flex;
     align-items: center;
     gap: 0.9rem;
   }
-  .card.no-score { opacity: 0.72; }
   .rank {
     font-weight: 800;
     font-size: 1.05rem;
@@ -148,9 +150,25 @@
   }
   .score-reviews { font-size: 0.76rem; color: var(--text-sub); }
   .score-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; }
-  .menu-row { margin-top: 0.3rem; font-size: 0.8rem; color: var(--text); }
-  .menu-row .menu-label { color: var(--text-sub); margin-right: 0.3rem; }
-  .menu-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; }
+  .menu-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; margin-top: 0.5rem; }
+
+  .menu-photo { margin-top: 0.85rem; }
+  .menu-photo img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    background: var(--bg);
+  }
+  .menu-photo .cap {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+  .menu-photo .cap .menu-label { color: var(--text-sub); margin-right: 0.3rem; }
+  .menu-photo .credit { font-size: 0.68rem; color: var(--text-sub); margin-top: 0.15rem; }
+  .menu-photo .credit a { color: var(--text-sub); }
 
   .btn-col { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
   .map-btn, .dc-btn {
@@ -217,29 +235,41 @@
 <script>
 // score: DacoScore (다이닝코드 100점 만점 점수), null if not confirmed
 // stars/reviews: shown when available instead of/alongside score
+// img: 실제 해당 지점 사진이 확인된 경우만 다이닝코드 사진 사용, 그 외는 위키미디어 커먼즈의
+// 대표 음식 사진(해당 지점 사진 아님, 메뉴가 어떤 음식인지 참고용)을 사용
 const restaurants = [
   { name: "베이커리카페 공간", cat: "베이커리/카페", addr: "목련로 106-22 공간조경 1~2층",
     score: 75, reviews: 17, dcUrl: "https://www.diningcode.com/profile.php?rid=y3ucmsmUuFey",
-    menu: "소금빵 · 쌀 단팥빵 · 젤라또" },
+    menu: "소금빵 · 쌀 단팥빵 · 젤라또",
+    img: "https://d12zq4w4guyljn.cloudfront.net/300_300_20260527125918_photo1_d4379d7e7e34.webp",
+    imgIsStore: true },
   { name: "담가화로구이 청주동남방서점", cat: "화로구이", addr: "월평로 258 1층 101,102,103호",
     score: 67, reviews: 5, dcUrl: "https://www.diningcode.com/profile.php?rid=vySUZsm690ve",
-    menu: "숙성 갈비살 · 이베리코 목살" },
+    menu: "숙성 갈비살 · 이베리코 목살",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Korea-Gyeongju-Galbi-01.jpg?width=400" },
   { name: "삼사월 청주동남지구 본점", cat: "한우", addr: "중고개로125번길 11 2층 202호",
     stars: 5.0, reviews: 1, dcUrl: "https://www.diningcode.com/profile.php?rid=DxplfODXDp3k",
-    menu: "진갈비살(와규) · 와규된장찌개" },
+    menu: "진갈비살(와규) · 와규된장찌개",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Wagyu.jpg?width=400" },
   { name: "수제햄 고래부대찌개 청주동남지구점", cat: "부대찌개", addr: "중고개로141번길 10-6",
-    menu: "수제햄 고래부대찌개 · 고래꽃부대찌개(모둠)" },
+    menu: "수제햄 고래부대찌개 · 고래꽃부대찌개(모둠)",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Budae_jjigae_after_boiling.jpg?width=400" },
   { name: "요쿠야마치 동남지구점", cat: "일식(텐동/튀김)", addr: "동남로 79 1층",
-    menu: "요쿠야텐동 · 에비텐동" },
+    menu: "요쿠야텐동 · 에비텐동",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Prawn_Tendon.jpg?width=400" },
   { name: "강금옥쭈꾸미 청주동남점", cat: "쭈꾸미", addr: "중고개로141번길 13-20 허브프라자 104,105호",
-    menu: "쭈꾸미 · 쭈꾸미삼겹" },
+    menu: "쭈꾸미 · 쭈꾸미삼겹",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Jjukkumi-samgyeopsal.jpg?width=400" },
   { name: "뽀르따멜로", cat: "이탈리안(파스타/스테이크)", addr: "중고개로125번길 40-14 1층" },
   { name: "남다른대구막창 청주방서점", cat: "막창", addr: "단재로 340-5 1층 103호",
-    menu: "동글동글통막창 · 마늘숙성소곱창" },
+    menu: "동글동글통막창 · 마늘숙성소곱창",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Korean.food-Makchang-04.jpg?width=400" },
   { name: "담소 동남지구 본점", cat: "한우/육회", addr: "중고개로141번길 14-1 1층",
-    menu: "한우 육회 · 육회비빔밥" },
+    menu: "한우 육회 · 육회비빔밥",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Korean.cuisine-Yukhoe-04.jpg?width=400" },
   { name: "호이안식당 청주본점", cat: "베트남음식", addr: "중고개로141번길 33 1층",
-    menu: "퍼보(쌀국수) · 반쎄오" },
+    menu: "퍼보(쌀국수) · 반쎄오",
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Two_bowls_of_ph%E1%BB%9F_b%C3%B2_with_various_toppings.jpg?width=400" },
 ];
 
 const listEl = document.getElementById("list");
@@ -261,19 +291,25 @@ restaurants.forEach((r, i) => {
     ? `<a class="dc-btn" href="${r.dcUrl}" target="_blank" rel="noopener">평점</a>`
     : "";
 
-  const menuHtml = r.menu
-    ? `<span class="menu-label">대표메뉴</span>${r.menu}`
-    : `<span class="menu-none">메뉴 정보없음</span>`;
+  const menuPhotoHtml = r.menu
+    ? `<div class="menu-photo">
+        ${r.img ? `<img src="${r.img}" alt="${r.name} 대표메뉴 - ${r.menu}" loading="lazy">` : ""}
+        <div class="cap"><span class="menu-label">대표메뉴</span>${r.menu}</div>
+        ${r.img ? (r.imgIsStore
+          ? `<div class="credit">실제 매장 사진 (다이닝코드)</div>`
+          : `<div class="credit">참고용 이미지 · 해당 매장 사진 아님 (Wikimedia Commons)</div>`) : ""}
+      </div>`
+    : `<div class="menu-none">메뉴 정보없음</div>`;
 
   const card = document.createElement("div");
   card.className = "card" + (hasScore || hasStars ? "" : " no-score");
   card.innerHTML = `
+    <div class="card-row">
     <div class="rank">${i + 1}</div>
     <div class="info">
       <div class="name">${r.name}</div>
       <div class="meta">${r.cat}<span class="dot">·</span>${r.addr}</div>
       <div class="score-row">${scoreHtml}</div>
-      <div class="menu-row">${menuHtml}</div>
     </div>
     <div class="btn-col">
       <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener">
@@ -282,6 +318,8 @@ restaurants.forEach((r, i) => {
       </a>
       ${dcBtn}
     </div>
+    </div>
+    ${menuPhotoHtml}
   `;
   listEl.appendChild(card);
 });
