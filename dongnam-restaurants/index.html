@@ -153,13 +153,22 @@
   .menu-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; margin-top: 0.5rem; }
 
   .menu-photo { margin-top: 0.85rem; }
-  .menu-photo img {
+  .menu-photo .photo-frame {
     width: 100%;
-    max-height: 220px;
-    object-fit: cover;
+    height: 190px;
     border-radius: 10px;
-    display: block;
     background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .menu-photo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
   }
   .menu-photo .cap {
     margin-top: 0.4rem;
@@ -250,7 +259,7 @@ const restaurants = [
   { name: "삼사월 청주동남지구 본점", cat: "한우", addr: "중고개로125번길 11 2층 202호",
     stars: 5.0, reviews: 1, dcUrl: "https://www.diningcode.com/profile.php?rid=DxplfODXDp3k",
     menu: "진갈비살(와규) · 와규된장찌개",
-    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Wagyu.jpg?width=400" },
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Miyazaki_Beef_rib.jpg?width=400" },
   { name: "수제햄 고래부대찌개 청주동남지구점", cat: "부대찌개", addr: "중고개로141번길 10-6",
     menu: "수제햄 고래부대찌개 · 고래꽃부대찌개(모둠)",
     img: "https://commons.wikimedia.org/wiki/Special:FilePath/Budae_jjigae_after_boiling.jpg?width=400" },
@@ -259,7 +268,7 @@ const restaurants = [
     img: "https://commons.wikimedia.org/wiki/Special:FilePath/Prawn_Tendon.jpg?width=400" },
   { name: "강금옥쭈꾸미 청주동남점", cat: "쭈꾸미", addr: "중고개로141번길 13-20 허브프라자 104,105호",
     menu: "쭈꾸미 · 쭈꾸미삼겹",
-    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Jjukkumi-samgyeopsal.jpg?width=400" },
+    img: "https://commons.wikimedia.org/wiki/Special:FilePath/Jukkumi-bokkeum.jpg?width=400" },
   { name: "뽀르따멜로", cat: "이탈리안(파스타/스테이크)", addr: "중고개로125번길 40-14 1층" },
   { name: "남다른대구막창 청주방서점", cat: "막창", addr: "단재로 340-5 1층 103호",
     menu: "동글동글통막창 · 마늘숙성소곱창",
@@ -293,7 +302,7 @@ restaurants.forEach((r, i) => {
 
   const menuPhotoHtml = r.menu
     ? `<div class="menu-photo">
-        ${r.img ? `<img src="${r.img}" alt="${r.name} 대표메뉴 - ${r.menu}" loading="lazy">` : ""}
+        ${r.img ? `<div class="photo-frame"><img src="${r.img}" alt="${r.name} 대표메뉴 - ${r.menu}" loading="lazy"></div>` : ""}
         <div class="cap"><span class="menu-label">대표메뉴</span>${r.menu}</div>
         ${r.img ? (r.imgIsStore
           ? `<div class="credit">실제 매장 사진 (다이닝코드)</div>`
