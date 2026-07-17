@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 가족 여행</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --accent: #2f80ed;
+    --accent-dark: #1c64d1;
+    --bg: #f3f5f2;
+    --card-bg: #ffffff;
+    --text: #222222;
+    --text-sub: #666666;
+    --border: #e5e5e5;
+    --chip-bg: #eaf2fe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181a;
+      --card-bg: #212426;
+      --text: #f0f0f0;
+      --text-sub: #9a9a9a;
+      --border: #33373a;
+      --chip-bg: #16283f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header.topbar {
+    background: var(--accent);
+    padding: 1.4rem 1rem 1.7rem;
+  }
+  header.topbar .inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  header.topbar h1 {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0 0 0.3rem;
+  }
+  header.topbar p {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 1.4rem 1rem 4rem; }
+
+  nav.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+  }
+  nav.tabs button {
+    flex: 1 1 auto;
+    min-width: 80px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    font-size: 0.92rem;
+    font-weight: 700;
+    padding: 0.7rem 0.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  nav.tabs button:hover {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+  nav.tabs button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .day-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.7rem;
+    display: flex;
+    gap: 0.9rem;
+  }
+  .day-item .time {
+    flex-shrink: 0;
+    font-weight: 800;
+    color: var(--accent-dark);
+    font-size: 0.9rem;
+    min-width: 3.4rem;
+  }
+  .day-item .info { flex: 1; min-width: 0; }
+  .day-item .place {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  .day-item .desc {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
+  .day-item .photo-frame {
+    margin-top: 0.7rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .day-item .photo-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .empty-note {
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 0.9rem;
+    padding: 2.5rem 1rem;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.7rem;
+  }
+  .memory-grid figure {
+    margin: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .memory-grid img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+  }
+  .memory-grid figcaption {
+    font-size: 0.78rem;
+    color: var(--text-sub);
+    padding: 0.4rem 0.55rem;
+  }
+
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-sub);
+    padding-bottom: 2rem;
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <h1>우리 가족 여행</h1>
+      <p>일정과 추억 사진을 한눈에 확인하세요</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="tabs">
+      <button class="tab-btn active" data-target="day1">1일차</button>
+      <button class="tab-btn" data-target="day2">2일차</button>
+      <button class="tab-btn" data-target="day3">3일차</button>
+      <button class="tab-btn" data-target="memories">추억사진</button>
+    </nav>
+
+    <section id="day1" class="panel active"></section>
+    <section id="day2" class="panel"></section>
+    <section id="day3" class="panel"></section>
+    <section id="memories" class="panel"></section>
+  </div>
+
+  <footer>가족 여행 일정 · 사진은 여행 중/후에 계속 추가됩니다</footer>
+
+  <div class="lightbox" id="lightbox">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+<script>
+// 일정 데이터: time/place/desc/img(선택) 형태로 나중에 채워 넣으면 됩니다.
+const days = {
+  day1: [],
+  day2: [],
+  day3: [],
+};
+
+// 추억사진 데이터: { img, caption(선택) } 형태로 나중에 채워 넣으면 됩니다.
+const memories = [];
+
+function renderDay(panelId, items) {
+  const el = document.getElementById(panelId);
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-note">아직 등록된 일정이 없습니다</div>`;
+    return;
+  }
+  el.innerHTML = items.map(it => `
+    <div class="day-item">
+      <div class="time">${it.time || ""}</div>
+      <div class="info">
+        <div class="place">${it.place || ""}</div>
+        ${it.desc ? `<div class="desc">${it.desc}</div>` : ""}
+        ${it.img ? `<div class="photo-frame"><img src="${it.img}" alt="${it.place || ""}" loading="lazy"></div>` : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderMemories() {
+  const el = document.getElementById("memories");
+  if (!memories.length) {
+    el.innerHTML = `<div class="empty-note">아직 등록된 추억 사진이 없습니다</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="memory-grid">${memories.map(m => `
+    <figure>
+      <img src="${m.img}" alt="${m.caption || ""}" loading="lazy" onclick="openLightbox('${m.img}')">
+      ${m.caption ? `<figcaption>${m.caption}</figcaption>` : ""}
+    </figure>
+  `).join("")}</div>`;
+}
+
+function openLightbox(src) {
+  document.getElementById("lightbox-img").src = src;
+  document.getElementById("lightbox").classList.add("open");
+}
+document.getElementById("lightbox").addEventListener("click", () => {
+  document.getElementById("lightbox").classList.remove("open");
+});
+
+renderDay("day1", days.day1);
+renderDay("day2", days.day2);
+renderDay("day3", days.day3);
+renderMemories();
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.target).classList.add("active");
+  });
+});
+</script>
+</body>
+</html>
