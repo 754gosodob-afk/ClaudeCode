@@ -152,10 +152,16 @@
   .score-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; }
   .menu-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; margin-top: 0.5rem; }
 
-  .menu-photo { margin-top: 0.85rem; }
+  .menu-photo {
+    margin-top: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
   .menu-photo .photo-frame {
-    width: 100%;
-    height: 190px;
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
     border-radius: 10px;
     background: var(--bg);
     border: 1px solid var(--border);
@@ -170,10 +176,11 @@
     object-fit: contain;
     display: block;
   }
+  .menu-photo .text-col { flex: 1; min-width: 0; }
   .menu-photo .cap {
-    margin-top: 0.4rem;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--text);
+    line-height: 1.4;
   }
   .menu-photo .cap .menu-label { color: var(--text-sub); margin-right: 0.3rem; }
   .menu-photo .credit { font-size: 0.68rem; color: var(--text-sub); margin-top: 0.15rem; }
@@ -303,10 +310,12 @@ restaurants.forEach((r, i) => {
   const menuPhotoHtml = r.menu
     ? `<div class="menu-photo">
         ${r.img ? `<div class="photo-frame"><img src="${r.img}" alt="${r.name} 대표메뉴 - ${r.menu}" loading="lazy"></div>` : ""}
-        <div class="cap"><span class="menu-label">대표메뉴</span>${r.menu}</div>
-        ${r.img ? (r.imgIsStore
-          ? `<div class="credit">실제 매장 사진 (다이닝코드)</div>`
-          : `<div class="credit">참고용 이미지 · 해당 매장 사진 아님 (Wikimedia Commons)</div>`) : ""}
+        <div class="text-col">
+          <div class="cap"><span class="menu-label">대표메뉴</span>${r.menu}</div>
+          ${r.img ? (r.imgIsStore
+            ? `<div class="credit">실제 매장 사진 (다이닝코드)</div>`
+            : `<div class="credit">참고용 이미지 · 해당 매장 사진 아님 (Wikimedia Commons)</div>`) : ""}
+        </div>
       </div>`
     : `<div class="menu-none">메뉴 정보없음</div>`;
 
