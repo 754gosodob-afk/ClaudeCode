@@ -105,11 +105,30 @@
     min-width: 3.4rem;
   }
   .day-item .info { flex: 1; min-width: 0; }
+  .day-item .place-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.25rem;
+  }
   .day-item .place {
     font-weight: 700;
     font-size: 1rem;
-    margin-bottom: 0.25rem;
   }
+  .day-item .map-link {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--accent);
+    padding: 0.3rem 0.7rem;
+    border-radius: 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+  }
+  .day-item .map-link:hover { background: var(--accent-dark); }
   .day-item .desc {
     font-size: 0.85rem;
     color: var(--text-sub);
@@ -216,7 +235,14 @@
 <script>
 // 일정 데이터: time/place/desc/img(선택) 형태로 나중에 채워 넣으면 됩니다.
 const days = {
-  day1: [],
+  day1: [
+    { time: "1", place: "충주 삼정면옥", mapQuery: "충주 삼정면옥" },
+    { time: "2", place: "속초 김영애할머니 순두부", mapQuery: "속초 김영애할머니순두부" },
+    { time: "3", place: "설악산 케이블카", mapQuery: "설악산 케이블카" },
+    { time: "4", place: "속초 카페 휘림", mapQuery: "속초 카페 휘림" },
+    { time: "5", place: "속초 커피내리는 버스 정류장", mapQuery: "속초 커피내리는버스정류장" },
+    { time: "6", place: "모녀 가리비", mapQuery: "속초 모녀가리비" },
+  ],
   day2: [],
   day3: [],
 };
@@ -234,7 +260,10 @@ function renderDay(panelId, items) {
     <div class="day-item">
       <div class="time">${it.time || ""}</div>
       <div class="info">
-        <div class="place">${it.place || ""}</div>
+        <div class="place-row">
+          <div class="place">${it.place || ""}</div>
+          ${it.mapQuery ? `<a class="map-link" href="https://map.naver.com/p/search/${encodeURIComponent(it.mapQuery)}" target="_blank" rel="noopener">지도</a>` : ""}
+        </div>
         ${it.desc ? `<div class="desc">${it.desc}</div>` : ""}
         ${it.img ? `<div class="photo-frame"><img src="${it.img}" alt="${it.place || ""}" loading="lazy"></div>` : ""}
       </div>
