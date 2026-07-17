@@ -14,6 +14,7 @@
     --text: #222222;
     --text-sub: #666666;
     --border: #e5e5e5;
+    --score-bg: #eafaf0;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -22,6 +23,7 @@
       --text: #f0f0f0;
       --text-sub: #9a9a9a;
       --border: #33373a;
+      --score-bg: #12291c;
     }
   }
   * { box-sizing: border-box; }
@@ -112,6 +114,7 @@
     align-items: center;
     gap: 0.9rem;
   }
+  .card.no-score { opacity: 0.72; }
   .rank {
     font-weight: 800;
     font-size: 1.05rem;
@@ -131,24 +134,47 @@
   }
   .meta { font-size: 0.82rem; color: var(--text-sub); }
   .meta .dot { margin: 0 0.35rem; opacity: 0.6; }
-
-  .map-btn {
-    flex-shrink: 0;
+  .score-row { margin-top: 0.35rem; display: flex; align-items: center; gap: 0.4rem; }
+  .score-badge {
     display: inline-flex;
     align-items: center;
+    gap: 0.25rem;
+    background: var(--score-bg);
+    color: var(--naver-green-dark);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 8px;
+  }
+  .score-reviews { font-size: 0.76rem; color: var(--text-sub); }
+  .score-none { font-size: 0.78rem; color: var(--text-sub); font-style: italic; }
+
+  .btn-col { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
+  .map-btn, .dc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 0.3rem;
-    background: var(--naver-green);
-    color: #ffffff;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 700;
     text-decoration: none;
-    padding: 0.5rem 0.8rem;
+    padding: 0.42rem 0.75rem;
     border-radius: 20px;
     white-space: nowrap;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .map-btn {
+    background: var(--naver-green);
+    color: #ffffff;
   }
   .map-btn:hover { background: var(--naver-green-dark); }
-  .map-btn svg { flex-shrink: 0; }
+  .dc-btn {
+    background: transparent;
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+  }
+  .dc-btn:hover { border-color: var(--naver-green-dark); color: var(--naver-green-dark); }
+  .map-btn svg, .dc-btn svg { flex-shrink: 0; }
 
   footer {
     text-align: center;
@@ -173,27 +199,32 @@
   </div>
 
   <div class="wrap">
-    <p class="subtitle">Best 10 Restaurants in Dongnam-jigu, Cheongju · 지도 아이콘을 누르면 네이버 지도에서 바로 볼 수 있어요</p>
+    <p class="subtitle">Best 10 Restaurants in Dongnam-jigu, Cheongju · 평점 확보된 곳부터 정렬, 지도 아이콘으로 네이버 지도 바로가기</p>
 
     <div class="note">
-      ⚠️ 네이버 지도의 실제 별점 데이터는 자동 수집이 차단되어 가져올 수 없었습니다. 아래 목록은 <strong>블로그 추천 순위(별점순 아님)</strong>를 기준으로 정리했습니다.
-      출처: <a href="https://restaurant-place.bujastory.co.kr/entry/%EB%8F%99%EB%82%A8%EC%A7%80%EA%B5%AC-%EB%A7%9B%EC%A7%91-%EC%B6%94%EC%B2%9C-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EB%A6%AC%EB%B7%B0-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10" target="_blank" rel="noopener">bujastory 블로그</a>
+      ⚠️ 네이버 지도 별점은 자동 수집이 차단되어 가져올 수 없어, 대신 <strong>다이닝코드 평점(별개의 자체 서비스)</strong>을 가져왔습니다. 10곳 중 정확히 같은 지점으로 확인되어 점수를 가져온 곳은 3곳뿐이고, 나머지 7곳은 다이닝코드에 해당 지점 정보가 없거나 확인이 안 돼 "정보없음"으로 표시했습니다.
+      순위 목록 출처: <a href="https://restaurant-place.bujastory.co.kr/entry/%EB%8F%99%EB%82%A8%EC%A7%80%EA%B5%AC-%EB%A7%9B%EC%A7%91-%EC%B6%94%EC%B2%9C-%EB%82%B4%EB%8F%88%EB%82%B4%EC%82%B0-%EB%A6%AC%EB%B7%B0-%EB%B2%A0%EC%8A%A4%ED%8A%B8-10" target="_blank" rel="noopener">bujastory 블로그</a>
     </div>
 
     <div id="list"></div>
   </div>
 
-  <footer>지도 링크는 네이버 지도 검색 결과로 연결됩니다.</footer>
+  <footer>지도 링크는 네이버 지도 검색 결과로, 평점 링크는 다이닝코드 페이지로 연결됩니다.</footer>
 
 <script>
+// score: DacoScore (다이닝코드 100점 만점 점수), null if not confirmed
+// stars/reviews: shown when available instead of/alongside score
 const restaurants = [
+  { name: "베이커리카페 공간", cat: "베이커리/카페", addr: "목련로 106-22 공간조경 1~2층",
+    score: 75, reviews: 17, dcUrl: "https://www.diningcode.com/profile.php?rid=y3ucmsmUuFey" },
+  { name: "담가화로구이 청주동남방서점", cat: "화로구이", addr: "월평로 258 1층 101,102,103호",
+    score: 67, reviews: 5, dcUrl: "https://www.diningcode.com/profile.php?rid=vySUZsm690ve" },
+  { name: "삼사월 청주동남지구 본점", cat: "한우", addr: "중고개로125번길 11 2층 202호",
+    stars: 5.0, reviews: 1, dcUrl: "https://www.diningcode.com/profile.php?rid=DxplfODXDp3k" },
   { name: "수제햄 고래부대찌개 청주동남지구점", cat: "부대찌개", addr: "중고개로141번길 10-6" },
-  { name: "삼사월 청주동남지구 본점", cat: "한우", addr: "중고개로125번길 11 2층 202호" },
   { name: "요쿠야마치 동남지구점", cat: "일식(텐동/튀김)", addr: "동남로 79 1층" },
-  { name: "담가화로구이 청주동남방서점", cat: "화로구이", addr: "월평로 258 1층 101,102,103호" },
   { name: "강금옥쭈꾸미 청주동남점", cat: "쭈꾸미", addr: "중고개로141번길 13-20 허브프라자 104,105호" },
   { name: "뽀르따멜로", cat: "이탈리안(파스타/스테이크)", addr: "중고개로125번길 40-14 1층" },
-  { name: "베이커리카페 공간", cat: "베이커리/카페", addr: "목련로 106-22 공간조경 1~2층" },
   { name: "남다른대구막창 청주방서점", cat: "막창", addr: "단재로 340-5 1층 103호" },
   { name: "담소 동남지구 본점", cat: "한우/육회", addr: "중고개로141번길 14-1 1층" },
   { name: "호이안식당 청주본점", cat: "베트남음식", addr: "중고개로141번길 33 1층" },
@@ -202,18 +233,38 @@ const restaurants = [
 const listEl = document.getElementById("list");
 restaurants.forEach((r, i) => {
   const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent("청주 " + r.name);
+  const hasScore = typeof r.score === "number";
+  const hasStars = typeof r.stars === "number";
+
+  let scoreHtml;
+  if (hasScore) {
+    scoreHtml = `<span class="score-badge">다이닝코드 ${r.score}점</span><span class="score-reviews">리뷰 ${r.reviews}개</span>`;
+  } else if (hasStars) {
+    scoreHtml = `<span class="score-badge">★ ${r.stars.toFixed(1)}</span><span class="score-reviews">리뷰 ${r.reviews}개 (표본 적음)</span>`;
+  } else {
+    scoreHtml = `<span class="score-none">다이닝코드 정보없음</span>`;
+  }
+
+  const dcBtn = r.dcUrl
+    ? `<a class="dc-btn" href="${r.dcUrl}" target="_blank" rel="noopener">평점</a>`
+    : "";
+
   const card = document.createElement("div");
-  card.className = "card";
+  card.className = "card" + (hasScore || hasStars ? "" : " no-score");
   card.innerHTML = `
     <div class="rank">${i + 1}</div>
     <div class="info">
       <div class="name">${r.name}</div>
       <div class="meta">${r.cat}<span class="dot">·</span>${r.addr}</div>
+      <div class="score-row">${scoreHtml}</div>
     </div>
-    <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-      지도
-    </a>
+    <div class="btn-col">
+      <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        지도
+      </a>
+      ${dcBtn}
+    </div>
   `;
   listEl.appendChild(card);
 });
