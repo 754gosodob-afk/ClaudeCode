@@ -184,6 +184,19 @@
     display: block;
   }
 
+  .travel-leg {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: -0.35rem 0 0.85rem 1.05rem;
+    padding-left: 0.9rem;
+    border-left: 2px dashed var(--border);
+    color: var(--text-sub);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .travel-leg .car { font-size: 0.85rem; }
+
   .empty-note {
     text-align: center;
     color: var(--text-sub);
@@ -282,12 +295,12 @@
 // 일정 데이터: time/place/desc/img(선택) 형태로 나중에 채워 넣으면 됩니다.
 const days = {
   day1: [
-    { time: "1", place: "충주 삼정면옥", mapQuery: "충주 삼정면옥", addr: "충청북도 충주시 관아3길 21" },
-    { time: "2", place: "청초수 물회", mapQuery: "청초수물회 속초본점", addr: "강원 속초시 엑스포로 12-36" },
-    { time: "3", place: "설악산 케이블카", mapQuery: "설악산 케이블카", addr: "강원특별자치도 속초시 설악산로 1085" },
-    { time: "4", place: "속초 카페 휘림", mapQuery: "속초 카페 휘림", addr: "강원특별자치도 속초시 노학동 노리5길 34-1" },
-    { time: "5", place: "속초 커피내리는 버스 정류장", mapQuery: "속초 커피내리는버스정류장", addr: "강원특별자치도 속초시 금호동 490-15" },
-    { time: "6", place: "모녀 가리비", mapQuery: "속초 모녀가리비", addr: "강원 속초시 대포항희망길 53" },
+    { time: "1", place: "충주 삼정면옥", mapQuery: "충주 삼정면옥", addr: "충청북도 충주시 관아3길 21", travelToNext: { distance: "215.0km", duration: "2시간 31분" } },
+    { time: "2", place: "청초수 물회", mapQuery: "청초수물회 속초본점", addr: "강원 속초시 엑스포로 12-36", travelToNext: { distance: "11.5km", duration: "20분" } },
+    { time: "3", place: "설악산 케이블카", mapQuery: "설악산 케이블카", addr: "강원특별자치도 속초시 설악산로 1085", travelToNext: { distance: "8.3km", duration: "13분" } },
+    { time: "4", place: "속초 카페 휘림", mapQuery: "속초 카페 휘림", addr: "강원특별자치도 속초시 노학동 노리5길 34-1", travelToNext: { distance: "4.2km", duration: "11분" } },
+    { time: "5", place: "속초 커피내리는 버스 정류장", mapQuery: "속초 커피내리는버스정류장", addr: "강원특별자치도 속초시 금호동 490-15", travelToNext: { distance: "5.6km", duration: "11분" } },
+    { time: "6", place: "모녀 가리비", mapQuery: "속초 모녀가리비", addr: "강원 속초시 대포항희망길 53", travelToNext: { distance: "5.5km", duration: "11분" } },
     { time: "🏠", place: "속초 완벽한날들 (숙소)", mapQuery: "강원 속초시 수복로259번길 7", addr: "강원특별자치도 속초시 수복로259번길 7" },
   ],
   day2: [
@@ -328,6 +341,7 @@ function renderDay(panelId, items) {
         ${it.img ? `<div class="photo-frame"><img src="${it.img}" alt="${it.place || ""}" loading="lazy"></div>` : ""}
       </div>
     </div>
+    ${it.travelToNext ? `<div class="travel-leg"><span class="car">🚗</span><span>${it.travelToNext.distance} · 약 ${it.travelToNext.duration}</span></div>` : ""}
   `).join("");
 }
 
