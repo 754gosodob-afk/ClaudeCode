@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>전국 막국수 지도</title>
+<title>전국 막국수 지도 - 강원·경기·서울·충청·경상·전라·제주 막국수 맛집</title>
+<meta name="description" content="강원(춘천·봉평·평창·양구·강릉), 경기, 서울, 충청, 경상, 전라, 제주까지 전국 막국수 맛집을 지역별 지도와 목록으로 정리했습니다.">
+<meta name="keywords" content="막국수, 막국수 맛집, 전국 막국수 지도, 춘천 막국수, 봉평 막국수, 메밀막국수">
+<link rel="canonical" href="https://754gosodob-afk.github.io/ClaudeCode/makguksu-map/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="전국 막국수 지도">
+<meta property="og:description" content="강원·경기·서울·충청·경상·전라·제주 지역별 막국수 맛집을 지도와 목록으로 한눈에.">
+<meta property="og:url" content="https://754gosodob-afk.github.io/ClaudeCode/makguksu-map/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="전국 막국수 지도">
+<meta name="twitter:description" content="강원·경기·서울·충청·경상·전라·제주 지역별 막국수 맛집을 지도와 목록으로 한눈에.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
   :root {
@@ -247,6 +258,28 @@ const places = [
   { name: "진미면막국수", region: "전라", city: "전주", addr: "전북 전주시 덕진구 석소5길 13", menu: "소화 잘되는 메밀 막국수", lat: 35.8642, lng: 127.1289 },
   { name: "저지면옥", region: "제주", city: "제주", addr: "제주 한경면 저지리", menu: "제주에서 만나는 메밀 막국수", lat: 33.3199, lng: 126.2977 },
 ];
+
+// 검색엔진용 구조화 데이터 (schema.org ItemList) - places 배열과 자동 동기화
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "전국 막국수 지도",
+  "itemListElement": places.map((p, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "item": {
+      "@type": "Restaurant",
+      "name": p.name,
+      "address": p.addr,
+      "servesCuisine": "막국수",
+      "geo": { "@type": "GeoCoordinates", "latitude": p.lat, "longitude": p.lng },
+    },
+  })),
+};
+const ldScript = document.createElement("script");
+ldScript.type = "application/ld+json";
+ldScript.textContent = JSON.stringify(structuredData);
+document.head.appendChild(ldScript);
 
 const DEFAULT_VIEW = [36.3, 127.9];
 const DEFAULT_ZOOM = 7;
