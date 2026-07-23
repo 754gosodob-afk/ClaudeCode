@@ -163,21 +163,25 @@
     padding: 0.15rem 0.55rem;
     border-radius: 8px;
   }
-  .map-btn {
+  .btn-col { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
+  .map-btn, .yt-btn {
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.3rem;
     font-size: 0.78rem;
     font-weight: 700;
     text-decoration: none;
     padding: 0.42rem 0.72rem;
     border-radius: 20px;
-    background: var(--accent);
     color: #ffffff;
     white-space: nowrap;
   }
+  .map-btn { background: var(--accent); }
   .map-btn:hover { background: var(--accent-dark); }
+  .yt-btn { background: #ff3b30; }
+  .yt-btn:hover { background: #d92c22; }
 
   footer {
     text-align: center;
@@ -284,6 +288,12 @@ function focusMarker(p, marker) {
 
 function buildCard(p, i) {
   const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent(p.addr + " " + p.name);
+  const ytBtn = p.youtube
+    ? `<a class="yt-btn" href="${p.youtube}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        영상
+      </a>`
+    : "";
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
@@ -293,10 +303,13 @@ function buildCard(p, i) {
         <div class="meta">${p.city}<br>${p.addr}</div>
         <div class="menu-tag">${p.menu}</div>
       </div>
-      <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-        지도
-      </a>
+      <div class="btn-col">
+        <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          지도
+        </a>
+        ${ytBtn}
+      </div>
     </div>
   `;
   card.addEventListener("click", () => focusMarker(p, markerByIndex[i]));
