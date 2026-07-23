@@ -17,6 +17,7 @@
     --text-sub: #6f7568;
     --border: #e3e1d5;
     --chip-bg: #eaf1ea;
+    --shadow: rgba(60, 60, 40, 0.08);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -29,6 +30,7 @@
       --text-sub: #a3a99a;
       --border: #33372f;
       --chip-bg: #1e2b21;
+      --shadow: rgba(0, 0, 0, 0.3);
     }
   }
   * { box-sizing: border-box; }
@@ -66,12 +68,53 @@
     margin-bottom: 1.1rem;
   }
 
+  nav.tabs {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.9rem 0.15rem;
+    margin: 0 -0.15rem 1.1rem;
+    background: linear-gradient(var(--bg) 78%, transparent);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  nav.tabs button {
+    flex: 0 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 0.6rem 0.85rem;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 2px 6px var(--shadow);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  nav.tabs button .dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; flex-shrink: 0; }
+  nav.tabs button:active { transform: scale(0.97); }
+  nav.tabs button:hover { border-color: var(--accent); color: var(--accent-dark); }
+  nav.tabs button.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-color: transparent;
+    color: #ffffff;
+  }
+  nav.tabs button.active .dot { background: #ffffff !important; }
+
   #map {
     width: 100%;
-    height: 440px;
+    height: 420px;
     border-radius: 14px;
     border: 1px solid var(--border);
-    margin-bottom: 1rem;
+    margin-bottom: 1.3rem;
     background: #eee;
   }
   .leaflet-popup-content-wrapper { border-radius: 10px; }
@@ -79,27 +122,23 @@
   .popup-addr { font-size: 0.8rem; color: #555; margin-bottom: 0.35rem; }
   .popup-link { font-size: 0.8rem; font-weight: 700; color: var(--accent-dark); text-decoration: none; }
 
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.78rem;
-    color: var(--text-sub);
+  .region-panel { display: none; }
+  .region-panel.active { display: block; animation: fadein 0.2s ease; }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .legend .item { display: flex; align-items: center; gap: 0.35rem; }
-  .legend .dot { width: 0.65rem; height: 0.65rem; border-radius: 50%; flex-shrink: 0; }
 
   .region-heading {
     font-size: 1rem;
     font-weight: 800;
-    margin: 1.6rem 0 0.6rem;
+    margin: 1.5rem 0 0.6rem;
     display: flex;
     align-items: center;
     gap: 0.45rem;
   }
   .region-heading .dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; flex-shrink: 0; }
-  .region-heading:first-of-type { margin-top: 0; }
+  .region-heading:first-child { margin-top: 0; }
 
   .card {
     background: var(--card-bg);
@@ -164,14 +203,14 @@
       정보는 다이닝코드, 식신, 미쉐린가이드 코리아, 각 지자체 관광 페이지 등을 참고해 정리했습니다.
     </div>
 
+    <nav class="tabs" id="tabs"></nav>
+
     <div id="map"></div>
 
-    <div class="legend" id="legend"></div>
-
-    <div id="list"></div>
+    <div id="panels"></div>
   </div>
 
-  <footer>핀을 클릭하거나 목록 카드를 누르면 지도가 해당 위치로 이동합니다.</footer>
+  <footer>탭을 눌러 지역을 선택하면 지도와 목록이 함께 필터링됩니다. 핀이나 카드를 누르면 해당 위치로 이동합니다.</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
@@ -183,6 +222,7 @@ const regions = {
   "전라": "#c94b4b",
   "제주": "#2fb6c4",
 };
+const regionOrder = Object.keys(regions);
 
 // lat/lng: 읍·면·동 중심 기준 근사치 (정확한 길찾기는 네이버 지도 링크 이용)
 const places = [
@@ -202,24 +242,20 @@ const places = [
   { name: "저지면옥", region: "제주", city: "제주", addr: "제주 한경면 저지리", menu: "제주에서 만나는 메밀 막국수", lat: 33.3199, lng: 126.2977 },
 ];
 
-const map = L.map("map").setView([36.3, 127.9], 7);
+const DEFAULT_VIEW = [36.3, 127.9];
+const DEFAULT_ZOOM = 7;
+
+const map = L.map("map").setView(DEFAULT_VIEW, DEFAULT_ZOOM);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
 
-const legendEl = document.getElementById("legend");
-Object.entries(regions).forEach(([name, color]) => {
-  const item = document.createElement("div");
-  item.className = "item";
-  item.innerHTML = `<span class="dot" style="background:${color}"></span>${name}`;
-  legendEl.appendChild(item);
-});
+// 지역별 레이어 그룹: 탭 전환 시 해당 지역 핀만 지도에 표시
+const regionLayers = {};
+regionOrder.forEach(r => { regionLayers[r] = L.layerGroup(); });
 
-const listEl = document.getElementById("list");
-const markers = [];
-let lastRegion = null;
-
+const markerByIndex = [];
 places.forEach((p, i) => {
   const color = regions[p.region];
   const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent(p.addr + " " + p.name);
@@ -230,20 +266,24 @@ places.forEach((p, i) => {
     weight: 2,
     fillColor: color,
     fillOpacity: 1,
-  }).addTo(map);
+  });
   marker.bindPopup(
     `<div class="popup-name">${p.name}</div><div class="popup-addr">${p.addr}</div><a class="popup-link" href="${mapUrl}" target="_blank" rel="noopener">네이버 지도에서 보기 →</a>`
   );
-  markers.push(marker);
+  marker.addTo(regionLayers[p.region]);
+  markerByIndex[i] = marker;
+});
 
-  if (p.region !== lastRegion) {
-    const heading = document.createElement("div");
-    heading.className = "region-heading";
-    heading.innerHTML = `<span class="dot" style="background:${color}"></span>${p.region}`;
-    listEl.appendChild(heading);
-    lastRegion = p.region;
-  }
+regionOrder.forEach(r => regionLayers[r].addTo(map));
 
+function focusMarker(p, marker) {
+  map.setView([p.lat, p.lng], 12, { animate: true });
+  marker.openPopup();
+  document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function buildCard(p, i) {
+  const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent(p.addr + " " + p.name);
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
@@ -259,12 +299,76 @@ places.forEach((p, i) => {
       </a>
     </div>
   `;
-  card.addEventListener("click", () => {
-    map.setView([p.lat, p.lng], 12, { animate: true });
-    marker.openPopup();
-    document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
+  card.addEventListener("click", () => focusMarker(p, markerByIndex[i]));
+  return card;
+}
+
+const panelsEl = document.getElementById("panels");
+
+// "전체" 패널: 지역별 헤딩으로 그룹핑해서 전부 표시
+const allPanel = document.createElement("div");
+allPanel.className = "region-panel active";
+allPanel.id = "panel-all";
+let lastRegion = null;
+places.forEach((p, i) => {
+  if (p.region !== lastRegion) {
+    const heading = document.createElement("div");
+    heading.className = "region-heading";
+    heading.innerHTML = `<span class="dot" style="background:${regions[p.region]}"></span>${p.region}`;
+    allPanel.appendChild(heading);
+    lastRegion = p.region;
+  }
+  allPanel.appendChild(buildCard(p, i));
+});
+panelsEl.appendChild(allPanel);
+
+// 지역별 패널: 해당 지역 카드만 표시
+regionOrder.forEach(region => {
+  const panel = document.createElement("div");
+  panel.className = "region-panel";
+  panel.id = "panel-" + region;
+  places.forEach((p, i) => {
+    if (p.region === region) panel.appendChild(buildCard(p, i));
   });
-  listEl.appendChild(card);
+  panelsEl.appendChild(panel);
+});
+
+// 탭 렌더링: 전체 + 지역별 (개수 표시)
+const tabsEl = document.getElementById("tabs");
+const counts = { all: places.length };
+regionOrder.forEach(r => { counts[r] = places.filter(p => p.region === r).length; });
+
+const tabDefs = [{ key: "all", label: "전체", color: null }, ...regionOrder.map(r => ({ key: r, label: r, color: regions[r] }))];
+tabsEl.innerHTML = tabDefs.map(t => `
+  <button class="tab-btn${t.key === "all" ? " active" : ""}" data-target="${t.key}">
+    ${t.color ? `<span class="dot" style="background:${t.color}"></span>` : ""}${t.label} (${counts[t.key]})
+  </button>
+`).join("");
+
+function setActiveRegion(key) {
+  regionOrder.forEach(r => map.removeLayer(regionLayers[r]));
+  if (key === "all") {
+    regionOrder.forEach(r => regionLayers[r].addTo(map));
+    map.setView(DEFAULT_VIEW, DEFAULT_ZOOM, { animate: true });
+  } else {
+    regionLayers[key].addTo(map);
+    const bounds = regionLayers[key].getLayers().map(m => m.getLatLng());
+    if (bounds.length === 1) {
+      map.setView(bounds[0], 12, { animate: true });
+    } else if (bounds.length > 1) {
+      map.fitBounds(L.latLngBounds(bounds), { padding: [30, 30] });
+    }
+  }
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".region-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-" + btn.dataset.target).classList.add("active");
+    setActiveRegion(btn.dataset.target);
+  });
 });
 </script>
 </body>
