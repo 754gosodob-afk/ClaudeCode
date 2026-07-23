@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전국 막국수 지도</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+  :root {
+    color-scheme: light dark;
+    --accent: #4a7c59;
+    --accent-dark: #375c40;
+    --wheat: #c9a84c;
+    --bg: #f6f5ef;
+    --card-bg: #ffffff;
+    --text: #2b2f28;
+    --text-sub: #6f7568;
+    --border: #e3e1d5;
+    --chip-bg: #eaf1ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent: #5c9a6e;
+      --accent-dark: #7ab88a;
+      --wheat: #d9be6f;
+      --bg: #171915;
+      --card-bg: #212420;
+      --text: #eef0ea;
+      --text-sub: #a3a99a;
+      --border: #33372f;
+      --chip-bg: #1e2b21;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header.topbar {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    padding: 1.6rem 1rem 1.3rem;
+  }
+  header.topbar .inner { max-width: 860px; margin: 0 auto; }
+  header.topbar .emoji { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  header.topbar h1 {
+    color: #ffffff;
+    font-size: clamp(1.25rem, 5vw, 1.55rem);
+    font-weight: 800;
+    margin: 0 0 0.3rem;
+  }
+  header.topbar p { color: rgba(255,255,255,0.9); font-size: 0.86rem; margin: 0; }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 1.3rem 1rem 3rem; }
+
+  .note {
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-sub);
+    line-height: 1.55;
+    margin-bottom: 1.1rem;
+  }
+
+  #map {
+    width: 100%;
+    height: 440px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+    background: #eee;
+  }
+  .leaflet-popup-content-wrapper { border-radius: 10px; }
+  .popup-name { font-weight: 800; margin-bottom: 0.2rem; }
+  .popup-addr { font-size: 0.8rem; color: #555; margin-bottom: 0.35rem; }
+  .popup-link { font-size: 0.8rem; font-weight: 700; color: var(--accent-dark); text-decoration: none; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.78rem;
+    color: var(--text-sub);
+  }
+  .legend .item { display: flex; align-items: center; gap: 0.35rem; }
+  .legend .dot { width: 0.65rem; height: 0.65rem; border-radius: 50%; flex-shrink: 0; }
+
+  .region-heading {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 1.6rem 0 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .region-heading .dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; flex-shrink: 0; }
+  .region-heading:first-of-type { margin-top: 0; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.95rem 1.05rem;
+    margin-bottom: 0.65rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-row { display: flex; align-items: flex-start; gap: 0.85rem; }
+  .info { flex: 1; min-width: 0; }
+  .name { font-weight: 700; font-size: 1rem; margin-bottom: 0.22rem; }
+  .meta { font-size: 0.82rem; color: var(--text-sub); line-height: 1.5; }
+  .menu-tag {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.76rem;
+    color: var(--accent-dark);
+    background: var(--chip-bg);
+    padding: 0.15rem 0.55rem;
+    border-radius: 8px;
+  }
+  .map-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.42rem 0.72rem;
+    border-radius: 20px;
+    background: var(--accent);
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .map-btn:hover { background: var(--accent-dark); }
+
+  footer {
+    text-align: center;
+    font-size: 0.76rem;
+    color: var(--text-sub);
+    padding: 0.5rem 1rem 2rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <div class="emoji">🌾</div>
+      <h1>전국 막국수 지도</h1>
+      <p>강원·경기·서울·경상·전라·제주 — 지역별 막국수 맛집 14곳</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="note">
+      ⚠️ 지도 핀 위치는 읍·면·동 단위의 대략적인 좌표이며, 정확한 길찾기는 각 카드의 <strong>네이버 지도</strong> 버튼을 이용해주세요.
+      정보는 다이닝코드, 식신, 미쉐린가이드 코리아, 각 지자체 관광 페이지 등을 참고해 정리했습니다.
+    </div>
+
+    <div id="map"></div>
+
+    <div class="legend" id="legend"></div>
+
+    <div id="list"></div>
+  </div>
+
+  <footer>핀을 클릭하거나 목록 카드를 누르면 지도가 해당 위치로 이동합니다.</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const regions = {
+  "강원": "#4a7c59",
+  "경기": "#d98c3a",
+  "서울": "#3a72d9",
+  "경상": "#8a4ad9",
+  "전라": "#c94b4b",
+  "제주": "#2fb6c4",
+};
+
+// lat/lng: 읍·면·동 중심 기준 근사치 (정확한 길찾기는 네이버 지도 링크 이용)
+const places = [
+  { name: "명가막국수", region: "강원", city: "춘천", addr: "강원 춘천시 신북읍 상천3길 8", menu: "순메밀 물막국수 · 4대째 이어온 원조", lat: 37.9455, lng: 127.7500 },
+  { name: "남부막국수 본관", region: "강원", city: "춘천", addr: "강원 춘천시 춘천로81번길 16", menu: "유자향 간장양념 비빔막국수", lat: 37.8735, lng: 127.7365 },
+  { name: "샘밭막국수", region: "강원", city: "춘천", addr: "강원 춘천시 신북읍 신샘밭로 644", menu: "메밀+비법 곡물 반죽 손막국수", lat: 37.9160, lng: 127.7280 },
+  { name: "현대막국수", region: "강원", city: "평창(봉평)", addr: "강원 평창군 봉평면 동이장터길 1", menu: "이효석 문학마을 인근 봉평 막국수", lat: 37.5995, lng: 128.3905 },
+  { name: "봉평메밀 미가연", region: "강원", city: "평창(봉평)", addr: "강원 평창군 봉평면 기풍로 108", menu: "100% 메밀막국수 · 육회비빔", lat: 37.5975, lng: 128.3925 },
+  { name: "양지막국수", region: "강원", city: "평창", addr: "강원 평창군 평창읍 종부로 120", menu: "편육과 함께하는 담백한 물막국수", lat: 37.3705, lng: 128.3905 },
+  { name: "동수리막국수", region: "강원", city: "양구", addr: "강원 양구군 양구읍 파로호로 899", menu: "감자전과 곁들이는 정갈한 막국수", lat: 38.1090, lng: 127.9895 },
+  { name: "대동면옥 강릉점", region: "강원", city: "강릉", addr: "강원 강릉시 종합운동장길 26-8", menu: "메밀 함량 높은 투박한 면발", lat: 37.7562, lng: 128.8970 },
+  { name: "고기리막국수", region: "경기", city: "용인", addr: "경기 용인시 수지구 이종무로 157", menu: "들기름막국수의 원조격", lat: 37.3227, lng: 127.0980 },
+  { name: "성천막국수 답십리본점", region: "서울", city: "동대문구", addr: "서울 동대문구 답십리로48나길 2", menu: "1966년 개업 · 반세기 전통", lat: 37.5711, lng: 127.0517 },
+  { name: "양양메밀막국수", region: "서울", city: "서초구", addr: "서울 서초구 동광로15길 10", menu: "미쉐린가이드 빕구르망 선정", lat: 37.4835, lng: 127.0142 },
+  { name: "최고산면옥", region: "경상", city: "대구", addr: "대구 수성구 무학로 125-11", menu: "수성못 인근 물막국수 맛집", lat: 35.8579, lng: 128.6301 },
+  { name: "진미면막국수", region: "전라", city: "전주", addr: "전북 전주시 덕진구 석소5길 13", menu: "소화 잘되는 메밀 막국수", lat: 35.8642, lng: 127.1289 },
+  { name: "저지면옥", region: "제주", city: "제주", addr: "제주 한경면 저지리", menu: "제주에서 만나는 메밀 막국수", lat: 33.3199, lng: 126.2977 },
+];
+
+const map = L.map("map").setView([36.3, 127.9], 7);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+}).addTo(map);
+
+const legendEl = document.getElementById("legend");
+Object.entries(regions).forEach(([name, color]) => {
+  const item = document.createElement("div");
+  item.className = "item";
+  item.innerHTML = `<span class="dot" style="background:${color}"></span>${name}`;
+  legendEl.appendChild(item);
+});
+
+const listEl = document.getElementById("list");
+const markers = [];
+let lastRegion = null;
+
+places.forEach((p, i) => {
+  const color = regions[p.region];
+  const mapUrl = "https://map.naver.com/p/search/" + encodeURIComponent(p.addr + " " + p.name);
+
+  const marker = L.circleMarker([p.lat, p.lng], {
+    radius: 8,
+    color: "#ffffff",
+    weight: 2,
+    fillColor: color,
+    fillOpacity: 1,
+  }).addTo(map);
+  marker.bindPopup(
+    `<div class="popup-name">${p.name}</div><div class="popup-addr">${p.addr}</div><a class="popup-link" href="${mapUrl}" target="_blank" rel="noopener">네이버 지도에서 보기 →</a>`
+  );
+  markers.push(marker);
+
+  if (p.region !== lastRegion) {
+    const heading = document.createElement("div");
+    heading.className = "region-heading";
+    heading.innerHTML = `<span class="dot" style="background:${color}"></span>${p.region}`;
+    listEl.appendChild(heading);
+    lastRegion = p.region;
+  }
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-row">
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="meta">${p.city}<br>${p.addr}</div>
+        <div class="menu-tag">${p.menu}</div>
+      </div>
+      <a class="map-btn" href="${mapUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        지도
+      </a>
+    </div>
+  `;
+  card.addEventListener("click", () => {
+    map.setView([p.lat, p.lng], 12, { animate: true });
+    marker.openPopup();
+    document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  listEl.appendChild(card);
+});
+</script>
+</body>
+</html>
