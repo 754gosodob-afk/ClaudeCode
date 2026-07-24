@@ -20,29 +20,29 @@
 <style>
   :root {
     color-scheme: light dark;
-    --accent: #4a7c59;
-    --accent-dark: #375c40;
-    --wheat: #c9a84c;
-    --bg: #f6f5ef;
+    --accent: #06b6d4;
+    --accent-dark: #0369a1;
+    --ice: #7dd3fc;
+    --bg: #eefbfd;
     --card-bg: #ffffff;
-    --text: #2b2f28;
-    --text-sub: #6f7568;
-    --border: #e3e1d5;
-    --chip-bg: #eaf1ea;
-    --shadow: rgba(60, 60, 40, 0.08);
+    --text: #0d2a30;
+    --text-sub: #4f7480;
+    --border: #d3eef3;
+    --chip-bg: #e0f7fa;
+    --shadow: rgba(6, 90, 130, 0.10);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --accent: #5c9a6e;
-      --accent-dark: #7ab88a;
-      --wheat: #d9be6f;
-      --bg: #171915;
-      --card-bg: #212420;
-      --text: #eef0ea;
-      --text-sub: #a3a99a;
-      --border: #33372f;
-      --chip-bg: #1e2b21;
-      --shadow: rgba(0, 0, 0, 0.3);
+      --accent: #22d3ee;
+      --accent-dark: #38bdf8;
+      --ice: #7dd3fc;
+      --bg: #071a1f;
+      --card-bg: #0e2830;
+      --text: #eaf7fa;
+      --text-sub: #8db4bd;
+      --border: #163842;
+      --chip-bg: #113640;
+      --shadow: rgba(0, 0, 0, 0.35);
     }
   }
   * { box-sizing: border-box; }
@@ -50,22 +50,45 @@
     margin: 0;
     min-height: 100vh;
     font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
-    background: var(--bg);
+    background:
+      radial-gradient(ellipse 900px 400px at 50% 0%, rgba(6, 182, 212, 0.10), transparent 70%),
+      var(--bg);
     color: var(--text);
   }
   header.topbar {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-    padding: 1.6rem 1rem 1.3rem;
+    position: relative;
+    background: linear-gradient(120deg, #06b6d4 0%, #0891b2 45%, #0369a1 100%);
+    padding: 1.7rem 1rem 2.1rem;
+    overflow: hidden;
   }
-  header.topbar .inner { max-width: 860px; margin: 0 auto; }
+  header.topbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(255,255,255,0.16) 0, transparent 45%),
+      radial-gradient(circle at 88% 75%, rgba(255,255,255,0.12) 0, transparent 40%);
+    pointer-events: none;
+  }
+  header.topbar .wave {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 26px;
+    display: block;
+  }
+  header.topbar .inner { position: relative; max-width: 860px; margin: 0 auto; }
   header.topbar .emoji { font-size: 1.6rem; margin-bottom: 0.25rem; }
   header.topbar h1 {
     color: #ffffff;
     font-size: clamp(1.25rem, 5vw, 1.55rem);
     font-weight: 800;
     margin: 0 0 0.3rem;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.12);
   }
-  header.topbar p { color: rgba(255,255,255,0.9); font-size: 0.86rem; margin: 0; }
+  header.topbar p { color: rgba(255,255,255,0.92); font-size: 0.86rem; margin: 0; }
 
   .wrap { max-width: 860px; margin: 0 auto; padding: 1.3rem 1rem 3rem; }
 
@@ -207,10 +230,13 @@
 <body>
   <header class="topbar">
     <div class="inner">
-      <div class="emoji">🌾</div>
+      <div class="emoji">🧊🌊</div>
       <h1>전국 막국수 지도</h1>
-      <p>강원·경기·서울·충청·경상·전라·제주 — 지역별 막국수 맛집 15곳</p>
+      <p>강원·경기·서울·충청·경상·전라·제주 — 시원하게 즐기는 막국수 맛집 15곳</p>
     </div>
+    <svg class="wave" viewBox="0 0 500 30" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,16 C120,32 180,0 260,10 C340,20 400,2 500,14 L500,30 L0,30 Z" fill="var(--bg)"></path>
+    </svg>
   </header>
 
   <div class="wrap">
@@ -231,13 +257,13 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 const regions = {
-  "강원": "#4a7c59",
-  "경기": "#d98c3a",
-  "서울": "#3a72d9",
-  "충청": "#c23f8f",
-  "경상": "#8a4ad9",
-  "전라": "#c94b4b",
-  "제주": "#2fb6c4",
+  "강원": "#14b8a6",
+  "경기": "#f59e0b",
+  "서울": "#3b82f6",
+  "충청": "#ec4899",
+  "경상": "#8b5cf6",
+  "전라": "#f43f5e",
+  "제주": "#10b981",
 };
 const regionOrder = Object.keys(regions);
 
