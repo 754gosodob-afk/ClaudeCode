@@ -60,7 +60,10 @@
     line-height: 0;
     background: #EFE6D2;
   }
-  header.hero svg { width: 100%; height: auto; display: block; }
+  header.hero svg { width: 100%; height: auto; display: block; overflow: hidden; }
+  @media (min-width: 768px) {
+    header.hero svg { aspect-ratio: 16 / 3; }
+  }
   .sr-only {
     position: absolute;
     width: 1px;
@@ -213,7 +216,7 @@
 <body>
   <header class="hero">
     <h1 class="sr-only">전국 막국수 지도</h1>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" role="img" aria-label="전국 막국수 지도 히어로 이미지">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" role="img" aria-label="전국 막국수 지도 히어로 이미지">
       <defs>
         <style type="text/css"><![CDATA[
           @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@500;800&family=IBM+Plex+Mono:wght@500&display=swap');
